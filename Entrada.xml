@@ -1,0 +1,24 @@
+<Insertar>
+    <Lista>
+        <Nombre> Rock </Nombre>
+        <Descripcion> Para estudiar </Descripcion>
+    </Lista>
+    <cancion>
+        <Nombre> GOOD NEWS </Nombre>
+        <path> cancion.mp3 </path>
+    </cancion>
+    <cancion>
+        <Nombre> QUEPED2 </Nombre>
+        <path> cancion.mp3 </path>
+    </cancion>
+
+    <cancion>
+        <Nombre> SIUU </Nombre>
+        <path> cancion.mp3 </path>
+    </cancion>
+
+    <cancion>
+        <Nombre> ABCD </Nombre>
+        <path> cancion.mp3 </path>
+    </cancion>
+</Insertar>
