@@ -5,24 +5,29 @@
 
 
 void Add(List *Head,char Name[],char Path[]){
-    int Index = 1;
-    Node *tmp;
-    tmp = malloc(sizeof(Node));
-    CreateNode(Name,Path,tmp);
-    if(Head->Raiz == NULL){
-        tmp->Index = Index;
-        Head->Raiz = tmp;
+    if (Search(Name,Head) == 1)
+    {
+        printf("Ya hay una cancion con ese nombre\n");
     }else{
-        Node *p = Head->Raiz;
-        Index++;
-        while (p->Next != NULL)
-        {
-            p = p->Next;
+        int Index = 1;
+        Node *tmp;
+        tmp = malloc(sizeof(Node));
+        CreateNode(Name,Path,tmp);
+        if(Head->Raiz == NULL){
+            tmp->Index = Index;
+            Head->Raiz = tmp;
+        }else{
+            Node *p = Head->Raiz;
             Index++;
+            while (p->Next != NULL)
+            {
+                p = p->Next;
+                Index++;
+            }
+            tmp->Index = Index;
+            p->Next = tmp;
+
         }
-        tmp->Index = Index;
-        p->Next = tmp;
-        
     }
 }
 void AddPos(List *Lista,char Name[],char Path[],int Pos){
