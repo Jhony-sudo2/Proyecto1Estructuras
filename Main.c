@@ -182,7 +182,7 @@ void OperacionesPlaylist(int Selection){
             if(Selection == 1){
                 PrintPlayList(&MyPlayList);
             }else if(Selection == 2){
-                PrintList(&MyPlayList);
+                PrintPlayList(&MyPlayList);
                 printf("Ingrese el id de la playlist para listar las canciones\n");
                 scanf("%i",&Selection);
                 Print(&getPlayList(Selection,&MyPlayList )->Songs);   
