@@ -7,6 +7,7 @@
 #include "ListaSimple.h"
 #include "PlayList.h"
 void Leer(List *Store,PlayList *MyPlaylist,char Direccion[]){
+    
     FILE *archivo;
     char linea[200];
     char tag[100];
@@ -17,8 +18,8 @@ void Leer(List *Store,PlayList *MyPlaylist,char Direccion[]){
     int id = 0;
     int Tipo;
     int Canciones = 0;
+    Node_List *ListaActual;
     archivo = fopen(Direccion, "r");
-
     if (archivo == NULL) {
         printf("No se pudo abrir el archivo.\n");
     }else{
@@ -30,10 +31,12 @@ void Leer(List *Store,PlayList *MyPlaylist,char Direccion[]){
             {
                 Tipo = 2;
             }else if (strstr(linea, "<Nombre>") != NULL) {
-                sscanf(linea, " <%*[^>] >%[^<] </%*[^>] >", nombre);
-                sscanf(linea, "<Nombre> %[^<] </Nombre>", nombre);
-            }else if (strstr(linea, "<canciones>") != NULL) {
+                sscanf(linea, " <%*[^>]>%[^<]</%*[^>]>", nombre);
+                sscanf(linea, "<Nombre>%[^<]</Nombre>", nombre);
+            }else if (strstr(linea, "<Canciones>") != NULL) {
                 Canciones = 1;
+                ListaActual = AddPlayList(nombre,description,MyPlaylist);
+                
             }
             else if (strstr(linea, "<path>") != NULL) {
 
@@ -44,7 +47,7 @@ void Leer(List *Store,PlayList *MyPlaylist,char Direccion[]){
 
                 sscanf(linea, " <%*[^>] >%d </%*[^>] >", &pos);
                 sscanf(linea, "<pos>%d</pos>", &pos);
-                
+                if(Canciones == 1)AddSongArchivo(Store,pos,ListaActual);
             }else if (strstr(linea, "<id>") != NULL) {
 
                 sscanf(linea, " <%*[^>] >%d </%*[^>] >", &id);
@@ -57,33 +60,29 @@ void Leer(List *Store,PlayList *MyPlaylist,char Direccion[]){
             }else if (strstr(linea, "</cancion>") != NULL) {
                 if (Tipo ==1)
                 {    
+                    printf("AGREGANDO CANCION\n");
+                    LimpiarCadena(path);
                     AgregarCancion(Store,nombre,path,pos);
                     
                 }else{
-                    printf("ELIMINANDO cancion:\n");
-                    printf("NOMBRE:%s\n",nombre);
                     EliminarCancion(Store,nombre,id);
                 }
                 
             }else if (strstr(linea, "</Lista>") != NULL)
             {
+
                 if (Tipo == 1)
                 {
-                    AddPlayList(nombre,description,MyPlaylist);
+                    if (Canciones == 0)
+                    {
+                        AddPlayList(nombre,description,MyPlaylist);
+                    }
+                    ListaActual = NULL;
+                    Canciones = 0;
                 }else{
-                    printf("ELIMINANDO LISTA\n");
                     EliminarLista(MyPlaylist,nombre,id);
                 }
-                
-            }else if (strstr(linea,"</canciones>"))
-            {
                 Canciones = 0;
-                if (Tipo == 1)
-                {
-                    printf("CREANDO PLAYLIS CON CANCIONES\n");
-                }else{
-                    printf("ELIMINANDO CANCIONES DE PLAYLIST\n");
-                }
                 
             }
             
@@ -91,10 +90,8 @@ void Leer(List *Store,PlayList *MyPlaylist,char Direccion[]){
             
             
         }
-
-        fclose(archivo);
-        printf("TERMINANDO DE LEER EL ARCHIVO\n");
-    }
+            fflush(archivo);    
+        }
 }
 
 
@@ -109,14 +106,10 @@ void AgregarCancion(List *Store,char Name[],char Path[],int pos){
     
 }
 
-void AgregarLista(PlayList *Lista,char Name[],char Description[]){
-
-}
-
 void EliminarCancion(List *Store,char Name[],int id){
-    Name[strcspn(Name, "\n")] = '\0';
     if (id == 0)
     {
+        printf("ELIMINANDO CANCION POR NOMBRE:%s\n",Name);
         DeleteByName(Name,Store);
     }else{
         DeleteByIndex(id,Store);
@@ -127,13 +120,23 @@ void EliminarCancion(List *Store,char Name[],int id){
 void EliminarLista(PlayList *Lista,char Nombre[],int index){
     if (index == 0)
     {
-        printf("ELIMINANDO LISTA POR NOMBRE\n");
-        printf("ELIMINANDO LA LISTA:%s\n",Nombre);
+        printf("INICIANDO A ELIMINAR LA LISTA\n");
         DeletePlayListByName(Nombre,Lista);
+        printf("TERMINANDO DE ELIMINAR LA LISTA\n");
     }else{
-        printf("ELIMINANDO LISTA POR ID\n");
         DeletePlayList(index,Lista);    
     }
     
+}
+
+void LimpiarCadena(char* cadena) {
+    int i = 0, j = 0;
+    while (cadena[i]) {
+        if (!isspace(cadena[i])) {
+            cadena[j++] = cadena[i];
+        }
+        i++;
+    }
+    cadena[j] = '\0';
 }
 

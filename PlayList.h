@@ -12,3 +12,5 @@ void PrintPlayList(PlayList* Lista);
 void PrintList(Node_List* tmp);
 void Update(int index,PlayList *Lista);
 void AdjustIndexList(Node_List *tmp);
+int Comparar(char str1[], char str2[]);
+void AddSongArchivo(List *Store,int index,Node_List *PlayList);

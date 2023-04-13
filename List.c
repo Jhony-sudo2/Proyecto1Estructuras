@@ -80,20 +80,30 @@ void PrintNode(Node *tmp){
 }
 
 
-
 void CreateNode(char Name[],char Path[],Node *tmp){
+    char Direccion[] = "./Canciones/";
     tmp->Next = NULL;
     size_t size = strlen(Name);
     size_t size_path = strlen(Path);
+    size_t size_Direccion = strlen(Direccion);
+    int k = 0;
+    for (int i = 0; i < size_Direccion; i++)
+    {
+        tmp->Path[i] = Direccion[i];
+        k++;
+    }
+
     for (int i = 0; i < size; i++)
     {
         tmp->Name[i] = Name[i];
     }
-
+    if (Path[0] == '.')k = 0;
     for (int i = 0; i < size_path; i++)
     {
-        tmp->Path[i] = Path[i];
+        tmp->Path[k] = Path[i];
+        k++;
     }
+    
     
 }
 
@@ -127,26 +137,32 @@ void DeleteByIndex(int index,List *Head){
 }
 
 void DeleteByName(char Name[],List* Head){
-    if (strcmp(Head->Raiz->Name,Name) == 0)
-    {   
-        Head->Raiz = Head->Raiz->Next;
-        AdjustIndex(Head->Raiz);
-        Print(Head);
-
+    if (Head->Raiz == NULL)
+    {
+        printf("LA STORE ESTA VACIA\n");
     }else{
-        Node *P = Head->Raiz;
-        int Continue = 0;
-        while (P != NULL & Continue != 1 & P->Next != NULL)
-        {
-            Node *tmp = P->Next;
-            if (strcmp(Name,tmp->Name) == 0)
-            {    
-                P->Next = tmp->Next;
-                AdjustIndex(tmp->Next);
-                free(tmp);
-                Continue = 1;
-            }else P = P->Next;
-            
+        
+        if (Comparar(Name,Head->Raiz->Name) == 0)
+        {   
+            Head->Raiz = Head->Raiz->Next;
+            AdjustIndex(Head->Raiz);
+            Print(Head);
+
+        }else{
+            Node *P = Head->Raiz;
+            int Continue = 0;
+            while (P != NULL & Continue != 1 & P->Next != NULL)
+            {
+                Node *tmp = P->Next;
+                if (Comparar(Name,tmp->Name) == 0)
+                {    
+                    P->Next = tmp->Next;
+                    AdjustIndex(tmp->Next);
+                    free(tmp);
+                    Continue = 1;
+                }else P = P->Next;
+                
+            }
         }
     }
 }
@@ -163,15 +179,12 @@ void AdjustIndex(Node *tmp){
 int Comparar(char str1[], char str2[]) {
     int i = 0, j = 0;
     while (str1[i] != '\0' && str2[j] != '\0') {
-        // Ignora los espacios en blanco
         while (str1[i] == ' ') {
             i++;
         }
         while (str2[j] == ' ') {
             j++;
         }
-
-        // Compara los caracteres
         if (str1[i] != str2[j]) {
             return str1[i] - str2[j];
         }
@@ -179,10 +192,6 @@ int Comparar(char str1[], char str2[]) {
         i++;
         j++;
     }
-
-    // Si uno de los strings no ha llegado a su final
-    // y su próximo caracter no es un espacio en blanco
-    // entonces los strings no son iguales.
     if (str1[i] != '\0' && str1[i] != ' ') {
         return str1[i] - str2[j];
     }

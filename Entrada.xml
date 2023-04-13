@@ -1,17 +1,12 @@
 <Insertar>
-    <Lista>
-        <Nombre> Rock </Nombre>
-        <Descripcion> Para estudiar </Descripcion>
-    </Lista>
     <cancion>
         <Nombre> GOOD NEWS </Nombre>
         <path> cancion.mp3 </path>
     </cancion>
     <cancion>
         <Nombre> QUEPED2 </Nombre>
-        <path> cancion.mp3 </path>
+        <path> cancion2.mp3 </path>
     </cancion>
-
     <cancion>
         <Nombre> SIUU </Nombre>
         <path> cancion.mp3 </path>
@@ -21,4 +16,21 @@
         <Nombre> ABCD </Nombre>
         <path> cancion.mp3 </path>
     </cancion>
+    <cancion>
+        <Nombre> CON POSICION </Nombre>
+        <path> cancion.mp3 </path>
+        <pos> 1 </pos>
+    </cancion>
+    <Lista>
+        <Nombre> LISTA 2</Nombre>
+        <Descripcion> HOLA </Descripcion>
+    </Lista>
+    <Lista>
+            <Nombre>Rock</Nombre>
+            <Descripcion>Lista para estudiar</Descripcion>
+            <Canciones>
+                <pos>1</pos>
+                <pos>6</pos>
+            </Canciones>
+    </Lista>
 </Insertar>

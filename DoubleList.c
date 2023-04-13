@@ -5,7 +5,7 @@
 
 void AddD(Node *tmp,DoubleList *Lista,int Type){
     DoubleNode *New = malloc(sizeof(DoubleNode));
-    Create(tmp->Path,New);
+    Create(tmp->Path,New,tmp->Name);
     if (Lista->Root == NULL)
     {
         Lista->Root = New;
@@ -38,11 +38,27 @@ void CreatList(Node_List *PlayL,DoubleList *Lista,int Type){
 }
 
 
-void Create(char Path[],DoubleNode *tmp){
+void Create(char Path[],DoubleNode *tmp,char Name[]){
     size_t size_path = strlen(Path);
+    size_t size_name = strlen(Name);
     for (int i = 0; i < size_path; i++)
     {
         tmp->Path[i] = Path[i];
     }
+    for (int i = 0; i < size_path; i++)
+    {
+        tmp->Name[i] = Name[i];
+    }
+    
+}
+
+void PrintSiguiente(DoubleNode *tmp){
+    DoubleNode *p = tmp->Next;
+    while (p != NULL)
+    {
+        printf("Nombre:%s\n",p->Name);
+        p = p->Next;
+    }
+    
 }
 

@@ -11,6 +11,7 @@ typedef struct Node
 typedef struct DoubleNode
 {
     char Path[30];
+    char Name[20];
     struct DoubleNode *Next;
     struct DoubleNode *Prev;
 }DoubleNode;

@@ -48,9 +48,20 @@ void AddPlayListWithSongs(PlayList* Lista,char Name[],char Description[],List* S
         }
         
     }
+}
+
+void AddSongArchivo(List *Store,int index,Node_List *PlayList){
     
+    Node *tmp = SearchSong(Store,index);
+    if (tmp != NULL)
+    {
+        Add(&PlayList->Songs,tmp->Name,tmp->Path);
+    }else{
+        printf("No existe cancion en la posicion:%i\n",index);
+    }
     
 }
+
 void AddSong(int index,List *Store,Node_List *tmp){
     if (tmp == NULL)
     {
@@ -80,7 +91,6 @@ void AddSong(int index,List *Store,Node_List *tmp){
 
 Node_List *getPlayList(int index,PlayList *Lista){
     Node_List *p = Lista->Root;
-
     while (p!=NULL)
     {
         if (p->Index == index)
@@ -90,8 +100,9 @@ Node_List *getPlayList(int index,PlayList *Lista){
             p = p->Next;
         }
     }
-    
+    return NULL;
 }
+
 
 void PrintPlayList(PlayList* Lista){
     Node_List* p = Lista->Root;
@@ -124,25 +135,18 @@ void DeletePlayList(int index,PlayList *Head){
         }else
         {
             Node_List *p = Head->Root;
-            while (p!= NULL)
+            int Continue = 0;
+            while (p!= NULL & Continue != 1 & p->Next != NULL)
             {
-                Node_List *p = Head->Root;
-                int Continue = 0;
-                while (p!= NULL & Continue != 1 & p->Next != NULL)
-                {
-                    Node_List *tmp = p->Next;
-                    if (tmp->Index == index)
-                    {    
-                        p->Next = tmp->Next;
-                        AdjustIndexList(tmp->Next);
-                        free(tmp);
-                        Continue = 1;
-                    }else p = p->Next;  
-                }
+                Node_List *tmp = p->Next;
+                if (tmp->Index == index)
+                {    
+                    p->Next = tmp->Next;
+                    AdjustIndexList(tmp->Next);
+                    free(tmp);
+                    Continue = 1;
+                }else p = p->Next;  
             }
-            
-               
-        
         }
     }
 
@@ -155,7 +159,7 @@ void DeletePlayListByName(char Name[],PlayList *Head){
     {
         printf("NOMBRE ACTUAL:%s\n",p->Name);
         printf("BUSCANDO:%s\n",Name);
-        if (strcmp(p->Name,Name) == 0)
+        if (Comparar(Name,p->Name) == 0)
         {
             printf("ENCONTRE LA LISTA\n");
             DeletePlayList(p->Index,Head);
@@ -182,6 +186,7 @@ void DeleteSong(int Index,PlayList *Lista){
 }
 
 void Update(int index,PlayList *Lista){
+    getchar();
     char Nombre[20];
     char Description[50];
     Node_List *p = getPlayList(index,Lista);

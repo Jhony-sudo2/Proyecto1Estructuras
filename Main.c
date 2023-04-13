@@ -6,6 +6,7 @@
 #include "PlayList.h"
 #include "DoubleList.h"
 #include "Archivo.h"
+#include "Pila.h"
 #include <ctype.h>
 #include <pthread.h>
 void Menu();
@@ -15,11 +16,14 @@ void Reproduccion(int Selection);
 int Validar();
 int SeleccionarPlayList();
 void Reproducir();
-void *cambio(void *arg);
+int MenuReproduccion(pthread_t hilo1);
+int P = 0;
 List Store;
+List Pila;
 PlayList MyPlayList;
 DoubleList RNormal;
 DoubleNode *Actual;
+Node ActualPila;
 int main(){
     Menu();
     return 0;
@@ -154,27 +158,37 @@ void OperacionesPlaylist(int Selection){
         
         break;
     case 2:
-        printf("Ingrese el id de la playlist a Eliminar\n");
-        scanf("%i",&Selection);
-        DeletePlayList(Selection,&MyPlayList);
+        if (MyPlayList.Root != NULL)
+        {
+            Selection = SeleccionarPlayList();
+            DeletePlayList(Selection,&MyPlayList);
+        }else printf("No hay playlist\n");
+        
         break;
     case 3:
         int index;
         index = SeleccionarPlayList();
-        Update(index,&MyPlayList);
+        if (MyPlayList.Root != NULL) Update(index,&MyPlayList);
         break;
     case 4:
-        printf("1 Listar PlayLists\n2 Listar Canciones de una Playlist\n");
-        int Selection = Validar();
-        getchar();
-        if(Selection == 1){
-            PrintPlayList(&MyPlayList);
-        }else if(Selection == 2){
-            printf("Ingrese el id de la playlist para listar las canciones\n");
-            scanf("%i",&Selection);
-            Print(&getPlayList(Selection,&MyPlayList )->Songs);   
+        if (MyPlayList.Root == NULL)
+        {
+            printf("No hay playlists\n");
         }else{
-            printf("Opcion Incorrecta\n");
+            
+            printf("1 Listar PlayLists\n2 Listar Canciones de una Playlist\n");
+            int Selection = Validar();
+            getchar();
+            if(Selection == 1){
+                PrintPlayList(&MyPlayList);
+            }else if(Selection == 2){
+                PrintList(&MyPlayList);
+                printf("Ingrese el id de la playlist para listar las canciones\n");
+                scanf("%i",&Selection);
+                Print(&getPlayList(Selection,&MyPlayList )->Songs);   
+            }else{
+                printf("Opcion Incorrecta\n");
+            }
         }
         break;
     case 5:
@@ -197,27 +211,30 @@ void Reproduccion(int Selection){
     case 1:
         /* REPRODUCCION NORMAL LISTA DOBLEMENTE ENLAZADA */
         int index = SeleccionarPlayList();
-        CreatList(getPlayList(index,&MyPlayList),&RNormal,0);
-        Actual = RNormal.Root;
-        Reproducir();
-        RNormal.Root = NULL;
-        Actual = NULL;
+        Node_List *PlayL = getPlayList(index,&MyPlayList);
+        if (PlayL->Songs.Raiz != NULL)
+        {    
+            CreatList(getPlayList(index,&MyPlayList),&RNormal,0);
+            Actual = RNormal.Root;
+            Reproducir();
+            RNormal.Root = NULL;
+            Actual = NULL;
+        }else printf("ESTA PLAYLIST NO TIENE CANCIONES\n");
+        
         break;
     case 2:
         /*REPETIR LISTA CIRCULAR */
         index = SeleccionarPlayList();
-        CreatList(getPlayList(index,&MyPlayList),&RNormal,1);
-        Actual = RNormal.Root;
-        Reproducir();
-        RNormal.Root = NULL;
-        Actual = NULL;
+        PlayL = getPlayList(index,&MyPlayList);
+        if (PlayL->Songs.Raiz != NULL)
+        {
+            CreatList(getPlayList(index,&MyPlayList),&RNormal,1);
+            Actual = RNormal.Root;
+            Reproducir();
+            RNormal.Root = NULL;
+            Actual = NULL;
+        }else printf("ESTA PLAYLIST NO TIENE CANCIONES\n");
         break;
-    case 5:
-        /*LISTA DE REPRODUCCION*/
-    case 6:
-        /*AGREGAR CANCION A LA LISTA DE REPRODUCCION USAR PILA -> FILO*/
-        break;
-    
     default:
         break;
     }
@@ -225,69 +242,80 @@ void Reproduccion(int Selection){
 
 void Reproducir(){
     pthread_t hilo1;
-    pthread_t hilo2;
     int id1 = 1;
-    int id2 =2;
     PlayArgs args1 = {"",id1};
-    strcpy(args1.path,Actual->Path);
+    if(Vacia(&Pila))strcpy(args1.path,Actual->Path);
+    else {
+        strcpy(args1.path,Pila.Raiz->Path);
+        strcpy(ActualPila.Name,Pila.Raiz->Name);
+        pop(&Pila);
+        P = 1;
+    }
     //hilo de reproduccion
-    pthread_create(&hilo1,NULL,Play,(void *)&args1);
     int Selection;
-    printf("1. SIGUIENTE\n");
-    printf("2. ANTERIOR\n");
-    printf("3. Salir de la reproduccion\n");
-    scanf("%i",&Selection);
-        if (Selection == 1)
-        {
-            Actual  = Actual->Next;
-            pthread_cancel(hilo1);
-            
-            
-        }else if(Selection == 2){
-            Actual  = Actual->Prev;
-            pthread_cancel(hilo1);
-
-        }else{
-            printf("SALIENDO DE LA REPRODUCCION\n");
-            pthread_cancel(hilo1);
-        }
-        
-    
+    pthread_create(&hilo1,NULL,Play,(void *)&args1);
+    Selection = MenuReproduccion(hilo1);
     pthread_join(hilo1, NULL);
-    if (Selection != 3)
+    if (Selection == 2 | Selection == 1)
     {
+        if(Vacia(&Pila))P =0;
         Reproducir();
     }
     
     
 }
 
-void *cambio(void *arg){
+int MenuReproduccion(pthread_t hilo1){
     int Selection;
+    if(P ==0)printf("REPRODUCIENDO:%s\n",Actual->Name);
+    else printf("REPRODUCIENDO EN LA PILA:%s\n",ActualPila.Name);
+        
     printf("1. SIGUIENTE\n");
     printf("2. ANTERIOR\n");
-    printf("3. Salir de la reproduccion\n");
+    printf("3. Agregar Cancion a la lista de reproduccion\n");
+    printf("4. Ver lista de reproduccion\n");
+    printf("5. Salir de la reproduccion\n");
     scanf("%i",&Selection);
-    while (Selection  != 3)
+    switch (Selection)
     {
-        
-        Selection =Validar();
-        if (Selection == 1)
-        {
-            Actual  = Actual->Next;
-            Reproducir();
-            
-        }else if(Selection == 2){
-            Actual  = Actual->Prev;
-            Reproducir();
-
-        }else{
-            printf("SALIENDO DE LA REPRODUCCION\n");
-
-        }
-        
+        case 1:
+            if (Vacia(&Pila)) {
+                if (Actual->Next != NULL)
+                {
+                    Actual  = Actual->Next;
+                }else{
+                    printf("Fin de la playlist\n");
+                    
+                }
+                
+            }
+            pthread_cancel(hilo1);
+            break;
+        case 2:
+            if (Actual->Prev != NULL)Actual  = Actual->Prev;
+            pthread_cancel(hilo1);
+            break;
+        case 3:
+            AgregarCancionPila(&Pila,&Store);
+            Selection = MenuReproduccion(hilo1);
+            break;
+        case 4:
+            printf("-------LISTA DE REPRODUCCION----------\n");
+            PintarPila(&Pila);
+            PrintSiguiente(Actual);
+            printf("---------------------------------------\n");
+            Selection = MenuReproduccion(hilo1);
+        break;
+        case 5:
+            printf("SALIENDO DE REPRODUCCION\n");
+            pthread_cancel(hilo1);
+            break;
+        default:
+            printf("Opcion no valida\n");
+            Selection = MenuReproduccion(hilo1);
+            break;
     }
-    return NULL;
+    return Selection;
 }
 
 int SeleccionarPlayList(){
