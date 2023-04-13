@@ -33,7 +33,7 @@ int Search(char Name[],List *Head){
     int Continue = 0;
     while (P != NULL & Continue != 1)
     {
-        if(strcmp(Name,P->Name) == 0){
+        if(Comparar(Name,P->Name) == 0){
             PrintNode(P);
             Continue = 1;
         }else{
